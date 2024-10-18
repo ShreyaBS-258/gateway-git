@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    tools{
+        maven 'my-maven'
+        jdk 'my-jdk'
+    }
+
+    stages {
+        stage('Git') {
+            steps {
+                echo 'Git'
+                git url :'https://github.com/ShreyaBS-258/gateway-git.git', branch:'master'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Build'
+                bat "mvn clean install -DskipTests"
+
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Test'
+                bat "mvn test"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploy'
+                bat 'docker build -t gateway-image .'
+                bat 'docker run -p 8222:8222 -d --name gateway-container gateway-image'
+            }
+        }
+
+    }
+}
